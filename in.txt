@@ -1,0 +1,9 @@
+pip install requests
+pip install asyncio
+pip install websockets
+pip install google-generativeai
+pip install google-api-core
+pip install SpeechRecognition
+pip install markdown
+pip install nltk
+pip install colorama
