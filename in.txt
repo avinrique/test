@@ -7,3 +7,6 @@ pip install SpeechRecognition
 pip install markdown
 pip install nltk
 pip install colorama
+
+
+python -m nltk.downloader punkt_tab
