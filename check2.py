@@ -1,7 +1,5 @@
-
 import requests
 import asyncio
-import websockets
 import concurrent.futures
 import google.generativeai as genai
 from google.api_core.exceptions import InternalServerError
@@ -13,19 +11,60 @@ import re
 import nltk
 from colorama import Fore, Style, init
 init(autoreset=True)
+import serial
+import time
 
-genai.configure(api_key="AIzaSyAlSRMwkkHtlsNkZJHrdjXRvD4zJdOsLKI")
+# Replace with your ESP32's serial port
+SERIAL_PORT = '/dev/rfcomm0'
+BAUD_RATE = 115200
+
+genai.configure(api_key="AIzaSyD02mt7Sejc3Ky6G7te8adqlk5BQr1ekj8")
 name = "avin"
 
+class BLEConnection:
+    def __init__(self, port, baud_rate):
+        self.port = port
+        self.baud_rate = baud_rate
+        self.serial_connection = None
 
+    def connect(self):
+        try:
+            if not self.serial_connection or not self.serial_connection.is_open:
+                self.serial_connection = serial.Serial(self.port, self.baud_rate, timeout=1)
+                print(f"Connected to {self.port}")
+        except serial.SerialException as e:
+            print(f"Error while connecting: {e}")
 
-model_reaction_bot = genai.GenerativeModel("gemini-pro")
-model_translate_spanish = genai.GenerativeModel("gemini-pro")
-model_summarize = genai.GenerativeModel("gemini-pro")
-model_chat = genai.GenerativeModel("gemini-pro")
+    def send_message(self, message):
+        try:
+            self.connect()
+            if self.serial_connection and self.serial_connection.is_open:
+                self.serial_connection.write(message.encode())  # Encode and send the message
+                print(f"Sent: {message.strip()}")
+
+                # Optional: Read response
+                time.sleep(1)
+                if self.serial_connection.in_waiting > 0:
+                    response = self.serial_connection.read(self.serial_connection.in_waiting).decode()
+                    print(f"Received: {response}")
+        except serial.SerialException as e:
+            print(f"Error while sending message: {e}")
+
+    def disconnect(self):
+        if self.serial_connection and self.serial_connection.is_open:
+            self.serial_connection.close()
+            print("Disconnected from Bluetooth device.")
+
+# Instantiate the BLE connection
+ble_connection = BLEConnection(SERIAL_PORT, BAUD_RATE)
+
+model_reaction_bot = genai.GenerativeModel("gemini-2.0-flash")
+model_translate_spanish = genai.GenerativeModel("gemini-2.0-flash")
+model_summarize = genai.GenerativeModel("gemini-2.0-flash")
+model_chat = genai.GenerativeModel("gemini-2.0-flash")
 
 details = f"name is : {name}"
-prompt_reaction = "You are an expression bot that gives expressions. According to the given text, what is your face supposed to look like (Pride, happy, Interest, sad, excited, annoyed, neutral, tired, surprised, fear, angry, contempt)? Choose one and say. It should be only one word. The prompt is: {}"
+prompt_reaction = "You are an expression bot that gives expressions. According to the given last text from the conversation , what is your face supposed to look like ( bored, happy, Interested , sad, excited, annoyed, neutral, tired, surprised, fear, angry, sleep, wakeup, doubtful ,shocked)? Choose one and say. It should be only one word. and you look the last response but also consider thee previous response of conversation and then give an expresssion. how would a human expression look like. well ususally its neutral but when required give the appropriate expression  taking consideration of pervious chat but focus on the user last chat what expression would you give as the response. try to keep neutral unless necessary. Where The conversation is : ```{}``` "
 
 bot_name = input("Enter bot name: ")
 chat_prompt = f"""
@@ -48,24 +87,19 @@ chat = model_chat.start_chat(
     ]
 )
 
-
 def strip_markdown(md_text):
-    """Function to convert Markdown to plain text, handling specific syntax."""
    
-    md_text = md_text.replace('**', '[bold]').replace('*', '[italic]').replace('`', '[code]')
+    md_text = md_text.replace('**', '').replace('*', '').replace('`', '')
     
-  
     md_text = re.sub(r'#.*', '', md_text)  
     md_text = re.sub(r'!\[.*\]\(.*\)', '', md_text)  
     md_text = re.sub(r'\[.*\]\(.*\)', '', md_text)  
-    
-
     md_text = ' '.join(md_text.split())
     
     return md_text
 
 def speak_with_piper(text):
-    """Function to synthesize speech using Piper and play it in real-time, one sentence at a time."""
+   
     try:
         
         clean_text = text.replace("\n", " ").replace("-", "")  
@@ -106,51 +140,6 @@ def speak_with_piper(text):
         print(f"{Fore.YELLOW}Error with Piper TTS: {e}")
 
 
-
-
-
-# def process_prompt(model, prompt, user_input):
-#     """Process a single prompt synchronously in a thread."""
-#     safety_thresholds = {
-#     "HARM_CATEGORY_SEXUALLY_EXPLICIT": "NONE",
-#     "HARM_CATEGORY_HATE_SPEECH": "NONE",
-#     "HARM_CATEGORY_HARASSMENT": "NONE",
-#     "HARM_CATEGORY_DANGEROUS_CONTENT": "NONE",
-# }
-#     try:
-#         response = model.generate_content(prompt.format(user_input))
-        
-#     except InternalServerError as e:
-#         return f"Internal Server Error for {model.model_name}: {e}"
-
-
-async def websocket_client(expression):
-    uri = "ws://10.250.33.131/ws"
-    try:
-        async with websockets.connect(uri) as websocket:
-            print("Connected to the WebSocket server!")
-
-           
-             
-            expression = input("Enter a message to send (type 'exit' to close): ")
-            if expression.lower() == 'exit':
-                print("Closing connection...")
-                
-
-            await websocket.send(expression)
-            print(f"Sent: {expression}")
-
-                # Wait for a response from the server
-            response = await websocket.recv()
-            print(f"Received: {response}")
-
-    except websockets.exceptions.ConnectionClosedError as e:
-        print(f"Connection closed unexpectedly: {e}")
-    except asyncio.TimeoutError:
-        print("Connection timed out. Please check the server's availability.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
 def process_prompt(model, prompt, user_input):
     """Process a single prompt synchronously in a thread and send the response to a server."""
     safety_thresholds = {
@@ -160,28 +149,26 @@ def process_prompt(model, prompt, user_input):
         "HARM_CATEGORY_DANGEROUS_CONTENT": "NONE",
     }
     try:
-       
-        response = model.generate_content(prompt.format(user_input))
+        
+        k = str(chat.history[2:]) 
+        k = k[:-1] +  ''' ,parts {
+            text: ''' + f''' {user_input}''' +  '''}
+            role: "user" '''
+        print(k)
+        response = model.generate_content(prompt.format(k), safety_settings={
+        'HARASSMENT': 'block_none',
+        'HATE_SPEECH': 'block_none',
+        'HARM_CATEGORY_HARASSMENT': 'block_none',
+        'HARM_CATEGORY_HATE_SPEECH': 'block_none',
+        'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'block_none',
+        'HARM_CATEGORY_DANGEROUS_CONTENT': 'block_none',
+    })
         
        
         expression = response.text
         print(f"{Fore.GREEN}Generated expression: {expression}")
-        websocket_client(expression)
-       
-        # server_url = "http://10.250.33.131/endpoint"  
-        # payload = {"expression": expression}
-        # headers = {"Content-Type": "application/json"}
-        
-        # try:
-        #     server_response = requests.post(server_url, json=payload, headers=headers)
-        #     if server_response.status_code == 200:
-        #         print(f"{Fore.GREEN}Expression successfully sent to server.")
-        #     else:
-        #         print(f"{Fore.YELLOW}Failed to send expression. Server response: {server_response.status_code}")
-        # except requests.exceptions.RequestException as e:
-        #     print(f"{Fore.RED}Error sending expression to server: {e}")
-        
-        # return expression
+        ble_connection.send_message(expression.lower())
+    
     
     except InternalServerError as e:
         return f"Internal Server Error for {model.model_name}: {e}"
@@ -193,43 +180,53 @@ def process_chat(chat_instance, user_input):
     try:
         if not user_input.strip():
             return "Error: Input is empty. Please enter something valid."
-        response = chat_instance.send_message(user_input)
-        # response_text = ""
-        # for chunk in response:
-        #     print(chunk.text)
-        #     response_text += chunk.text
-        # return response_text
+        response = chat_instance.send_message(user_input, safety_settings={
+        'HARASSMENT': 'block_none',
+        'HATE_SPEECH': 'block_none',
+        'HARM_CATEGORY_HARASSMENT': 'block_none',
+        'HARM_CATEGORY_HATE_SPEECH': 'block_none',
+        'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'block_none',
+        'HARM_CATEGORY_DANGEROUS_CONTENT': 'block_none',
+    })
+        print(response.text.lower()[:3])
+        if "yes" in response.text.lower()[:3]:
+            ble_connection.send_message("yes")
+        if "no" in response.text.lower()[:2]:
+            ble_connection.send_message('no')
+
         return response.text
     except InternalServerError as e:
         return f"Internal Server Error for ChatBot: {e}"
 
 def listen_for_input():
-    """Listen to audio input and convert it to text."""
+    #  stt 
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         try:
-            recognizer.adjust_for_ambient_noise(source, duration=2)
+            ble_connection.send_message("netural")
+            recognizer.adjust_for_ambient_noise(source, duration=1)
             print(f"{Fore.GREEN}Listening for your input...")
             audio = recognizer.listen(source, timeout=None, phrase_time_limit=None)
             print(f"{Fore.RED}Recognizing speech...")
             text = recognizer.recognize_google(audio)
             print(f"{Fore.GREEN}Recognized speech: {text}")
+
             return text
         except sr.UnknownValueError:
             print(f"{Fore.YELLOW}Speech not recognized. Please try again.")
-            return ""
+            return listen_for_input()
         except sr.RequestError as e:
             print(f"{Fore.YELLOW}Speech recognition API error: {e}")
-            return ""
+            return listen_for_input()
         except Exception as e:
             print(f"{Fore.YELLOW}Unexpected error: {e}")
-            return ""
+            return listen_for_input()
 
 async def handle_input():
-    """Handle input asynchronously."""
+    # Handling  input async
     with concurrent.futures.ThreadPoolExecutor() as executor:
         while True:
-            user_input = listen_for_input()  
+            user_input = listen_for_input() 
             if user_input.lower() == "exit":
                 print(f"{Fore.RED}Exiting...")
                 break
@@ -238,17 +235,20 @@ async def handle_input():
                 "Chat Response": executor.submit(process_chat, chat, user_input),
                 "Reaction BOT": executor.submit(process_prompt, model_reaction_bot, prompt_reaction, user_input),
             }
+            
 
             print(f"\n{Fore.GREEN}Processing...\n")
 
             completed_futures = []
+            print(tasks)
             while len(completed_futures) < len(tasks):
                 for task_name, future in tasks.items():
                     if future.done() and future not in completed_futures:
                         completed_futures.append(future)
                         result = future.result()
                         print(f"{task_name} response: {result}\n")
-                        speak_with_piper(result) 
+                        if task_name == "Chat Response":
+                            speak_with_piper(result) 
 
 if __name__ == "__main__":
     asyncio.run(handle_input())

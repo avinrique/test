@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Neon Tech</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    /* Base styles remain the same, with the addition of a fullscreen option for the surveillance panel */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+header {
+    text-align: center;
+    margin-top: 50px;
+    color: #00BFFF; /* Blue neon color */
+}
+
+h1 {
+    font-size: 3rem;
+    text-transform: uppercase;
+}
+
+.intro-text {
+    font-size: 1.2rem;
+    color: #87CEEB; /* Lighter blue for intro */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #00BFFF;
+    border: none;
+    color: black;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #87CEEB;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 30px;
+    flex-grow: 1;
+    gap: 30px;
+    overflow: hidden;
+}
+
+section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+#dynamic-values h2, #components h2, #live-feed h2, #surveillance h2 {
+    font-size: 2rem;
+    color: #00BFFF;
+    border-bottom: 2px solid #00BFFF;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.value-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.value-box {
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-box:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.8);
+}
+
+.value-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.value {
+    font-size: 1.5rem;
+    color: #00BFFF;
+}
+
+#surveillance {
+    flex: 2;
+    background-color: #111;
+    padding: 30px;
+    color: #00BFFF;
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#surveillance h2 {
+    margin-bottom: 30px;
+}
+
+.camera-feed {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.camera-box {
+    background-color: #222;
+    padding: 20px;
+    width: 48%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.camera-img {
+    width: 100%;
+    height: 200px;
+    background-color: #444;
+    margin-top: 10px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.camera-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+#toggle-fullscreen {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #00BFFF;
+    border: none;
+    color: black;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#toggle-fullscreen:hover {
+    background-color: #87CEEB;
+}
+
+.fullscreen #surveillance {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+</style>
+<body>
+    <header>
+        <h1>Serena</h1>
+        <p class="intro-text">Welcome to the future of Robots</p>
+        <button id="theme-toggle">Toggle Neon Theme</button>
+    </header>
+    
+    <main>
+        <section id="dynamic-values">
+            <h2>Dynamic Values</h2>
+            <div class="value-container">
+                <div class="value-box">
+                    <span class="value-name">Speed:</span>
+                    <span class="value" id="speed">0</span> km/h
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Battery:</span>
+                    <span class="value" id="battery">100</span>%
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Temperature:</span>
+                    <span class="value" id="temperature">22</span>°C
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Time:</span>
+                    <span class="value" id="time">00:00</span>
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Date:</span>
+                    <span class="value" id="date">2024-12-12</span>
+                </div>
+                <div class="value-box">
+                    <span class="value-name">CPU Usage:</span>
+                    <span class="value" id="cpu">10</span>%
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Air Quality:</span>
+                    <span class="value" id="air-quality">Good</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="live-feed">
+            <h2>Live Feed</h2>
+            <div id="feed">
+                <!-- New system logs or sensor readings will appear here -->
+            </div>
+        </section>
+
+        
+
+        <section id="components">
+            <h2>Add Components / Modules</h2>
+            <form id="component-form">
+                <label for="component-name">Component Name:</label>
+                <input type="text" id="component-name" placeholder="Enter component name" required>
+
+                <label for="component-type">Component Type:</label>
+                <select id="component-type">
+                    <option value="mobility-wheel">Mobility Wheel</option>
+                    <option value="sensor">Sensor</option>
+                    <option value="camera">Camera</option>
+                    <option value="others">Others</option>
+                </select>
+
+                <button type="submit">Add Component</button>
+            </form>
+
+            <div id="component-list">
+                <h3>Added Components:</h3>
+                <ul id="list">
+                    <!-- Added components will be displayed here -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+
+
+    <section id="model-container">
+        <h2>3D eobot Model</h2>
+        <div id="model" style="width: 100%; height: 500px;"></div>
+    </section>
+    <script>
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+    document.body.classList.toggle('neon-theme');
+});
+
+document.getElementById('toggle-fullscreen').addEventListener('click', function() {
+    document.getElementById('surveillance').classList.toggle('fullscreen');
+});
+
+// Simulating dynamic updates in the surveillance feeds
+function updateSurveillanceFeeds() {
+    document.getElementById('camera1-img').src = 'new-feed.jpg';
+    document.getElementById('camera2-img').src = 'new-feed.jpg';
+}
+
+setInterval(updateSurveillanceFeeds, 5000); // Update every 5 seconds
+// Get the container for the 3D model
+const container = document.getElementById('model');
+
+// Set up the scene
+const scene = new THREE.Scene();
+
+// Set up the camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / 500, 0.1, 1000);
+camera.position.z = 5;
+
+// Set up the WebGL renderer
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth / 2, 500); // Half the screen width and 500px high
+container.appendChild(renderer.domElement);
+
+// Set up lighting
+const ambientLight = new THREE.AmbientLight(0x404040, 2); // Ambient light to illuminate everything
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5).normalize();
+scene.add(directionalLight);
+
+// Load the GLTF model using the GLTFLoader
+const loader = new THREE.GLTFLoader();
+loader.load('/home/anshi/Downloads/test/Adafruit-Fingerprint-Sensor-Library/wall-e/scene.gltf', function(gltf) {
+    const model = gltf.scene;
+    scene.add(model);
+
+    // Optionally, adjust model size and position
+    model.scale.set(1, 1, 1);
+    model.position.set(0, 0, 0);
+
+    // Render the scene with the camera
+    animate();
+}, undefined, function(error) {
+    console.error(error);
+});
+
+// Animate function to update the scene
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+// Window resize handling
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth / 2, 500); // Adjust the size on window resize
+    camera.aspect = window.innerWidth / 2 / 500;
+    camera.updateProjectionMatrix();
+});
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>

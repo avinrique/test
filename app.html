@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Neon Tech</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+header {
+    text-align: center;
+    margin-top: 50px;
+    color: #00BFFF; /* Blue neon color */
+}
+
+h1 {
+    font-size: 3rem;
+    text-transform: uppercase;
+}
+
+.intro-text {
+    font-size: 1.2rem;
+    color: #87CEEB; /* Lighter blue for intro */
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 30px;
+    flex-grow: 1;
+    gap: 30px;
+    overflow: hidden;
+}
+
+section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+#dynamic-values h2, #components h2 {
+    font-size: 2rem;
+    color: #00BFFF;
+    border-bottom: 2px solid #00BFFF;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.value-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.value-box {
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.value-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.value {
+    font-size: 1.5rem;
+    color: #00BFFF;
+}
+
+#component-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+#component-form input, #component-form select {
+    padding: 10px;
+    background-color: #333;
+    border: 1px solid #00BFFF;
+    color: #00BFFF;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#component-form button {
+    padding: 10px;
+    background-color: #00BFFF;
+    color: black;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#component-form button:hover {
+    background-color: #87CEEB;
+}
+
+#component-list {
+    margin-top: 20px;
+    color: #00BFFF;
+}
+
+#component-list ul {
+    list-style-type: none;
+}
+
+#component-list li {
+    background-color: #222;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #00BFFF;
+}
+</style>
+<body>
+    <header>
+        <h1>Serena</h1>
+
+    </header>
+    
+    <main>
+        <section id="dynamic-values">
+            <h2>Devices :</h2>
+            <div class="value-container">
+                <div class="value-box">
+                    <span class="value-name">Speed:</span>
+                    <span class="value" id="speed">0</span> km/h
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Battery:</span>
+                    <span class="value" id="battery">100</span>%
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Temperature:</span>
+                    <span class="value" id="temperature">22</span>°C
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Time:</span>
+                    <span class="value" id="time">00:00</span>
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Date:</span>
+                    <span class="value" id="date">2024-12-12</span>
+                </div>
+                <div class="value-box">
+                    <span class="value-name">CPU Usage:</span>
+                    <span class="value" id="cpu">10</span>%
+                </div>
+                <div class="value-box">
+                    <span class="value-name">Air Quality:</span>
+                    <span class="value" id="air-quality">Good</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="components">
+            <h2>Add Components / Modules</h2>
+            <form id="component-form">
+                <label for="component-name">Component Name:</label>
+                <input type="text" id="component-name" placeholder="Enter component name" required>
+
+                <label for="component-type">Component Type:</label>
+                <select id="component-type">
+                    <option value="mobility-wheel">Mobility Wheel</option>
+                    <option value="sensor">Sensor</option>
+                    <option value="camera">Camera</option>
+                    <option value="others">Others</option>
+                </select>
+
+                <button type="submit">Add Component</button>
+            </form>
+
+            <div id="component-list">
+                <h3>Added Components:</h3>
+                <ul id="list">
+                    <!-- Added components will be displayed here -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Futuristic Tech. All Rights Reserved.</p>
+    </footer>
+<script>// Simulate dynamic value updates
+    let speed = 0;
+    let battery = 100;
+    let temperature = 22;
+    let cpuUsage = 10;
+    let airQuality = "Good";
+    
+    // Update dynamic values every second
+    setInterval(() => {
+        speed = Math.floor(Math.random() * 100);
+        battery = Math.floor(Math.random() * 100);
+        temperature = Math.floor(Math.random() * 35 + 10);
+        cpuUsage = Math.floor(Math.random() * 100);
+        airQuality = ["Good", "Moderate", "Poor"][Math.floor(Math.random() * 3)];
+    
+        const now = new Date();
+        const time = now.toLocaleTimeString();
+        const date = now.toLocaleDateString();
+    
+        document.getElementById('speed').innerText = speed;
+        document.getElementById('battery').innerText = battery;
+        document.getElementById('temperature').innerText = temperature;
+        document.getElementById('time').innerText = time;
+        document.getElementById('date').innerText = date;
+        document.getElementById('cpu').innerText = cpuUsage;
+        document.getElementById('air-quality').innerText = airQuality;
+    }, 1000);
+    
+    // Adding components dynamically
+    document.getElementById('component-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    
+        const componentName = document.getElementById('component-name').value;
+        const componentType = document.getElementById('component-type').value;
+    
+        const li = document.createElement('li');
+        li.textContent = `${componentName} - ${componentType}`;
+        document.getElementById('list').appendChild(li);
+    
+        document.getElementById('component-name').value = '';
+        document.getElementById('component-type').value = 'mobility-wheel';
+    });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
