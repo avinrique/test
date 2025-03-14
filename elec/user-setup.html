@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Your Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<style>
+    #questionsContainer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+        gap: 20px;
+        width: 90%;
+        max-width: 900px;
+        margin: 20px auto;
+    }
+
+    label {
+        font-size: 18px;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        background-color: black;
+        border: 1px solid white;
+        border-radius: 5px;
+        color: white;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: gray;
+    }
+</style>
+<body class="bg-black text-white flex flex-col items-center justify-center min-h-screen">
+    
+    <div class="bg-black p-8 rounded-lg shadow-lg w-full max-w-4xl text-center border border-white">
+        <h1 class="text-3xl font-bold mb-4">Welcome to Noa</h1>
+        <h2 class="text-xl mb-4">Select Your Category</h2>
+        
+        <select id="categorySelect" class="w-full p-2 bg-black text-white border border-white rounded-md mb-4">
+            <option value="">--Choose--</option>
+            <option value="kid">🧒 Kid</option>
+            <option value="senior">👴 Older Adult</option>
+            <option value="techie">👨‍💻 Techie</option>
+        </select>
+        
+        <div id="questionsContainer"></div> <!-- Grid layout for questions -->
+
+        <button id="submitBtn" class="mt-4 w-full bg-white text-black font-bold py-2 px-4 rounded-md hover:bg-gray-300">Submit</button>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

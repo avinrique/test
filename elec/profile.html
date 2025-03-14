@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen p-6">
+    
+    <div class="bg-gray-900 p-10 rounded-xl shadow-2xl w-full max-w-4xl border border-gray-700">
+        <!-- Profile Header -->
+        <h1 class="text-4xl font-bold text-center text-gray-100 mb-10 tracking-wide">Profile</h1>
+
+        <!-- Category Section -->
+        <div class="bg-gray-800 text-white px-6 py-4 rounded-lg mb-8 shadow">
+            <p class="text-lg font-medium"><strong>Category:</strong> <span id="categoryDisplay"></span></p>
+        </div>
+
+        <!-- Profile Information Grid -->
+        <div id="profileInfo" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+        <!-- Buttons Section -->
+        <div class="mt-10 flex flex-col md:flex-row gap-4">
+            <button id="saveBtn" class="w-full md:w-1/2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-lg shadow-md transition-all">
+                Save Changes
+            </button>
+            <button onclick="require('electron').ipcRenderer.send('navigate', 'dashboard.html')" 
+                class="w-full md:w-1/2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-6 rounded-lg shadow-md transition-all">
+                Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const fs = require("fs");
+        const path = require("path");
+
+        const filePath = path.join(__dirname, "usersinfo.json");
+
+        function loadProfile() {
+            fs.readFile(filePath, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading user info:", err);
+                    document.getElementById("profileInfo").innerHTML = "<p class='text-center text-gray-400'>No profile data found.</p>";
+                    return;
+                }
+
+                const userInfo = JSON.parse(data);
+                document.getElementById("categoryDisplay").innerText = userInfo.category;
+
+                let profileHTML = "";
+                Object.keys(userInfo.answers).forEach(question => {
+                    profileHTML += `
+                        <div class="flex flex-col text-left">
+                            <label class="text-gray-300 font-semibold mb-2">${question}</label>
+                            <input type="text" name="${question}" value="${userInfo.answers[question]}" 
+                                class="w-full p-3 bg-gray-800 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    `;
+                });
+
+                document.getElementById("profileInfo").innerHTML = profileHTML;
+            });
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", () => {
+            const updatedUserInfo = {
+                category: document.getElementById("categoryDisplay").innerText,
+                answers: {}
+            };
+
+            document.querySelectorAll("#profileInfo input").forEach(input => {
+                updatedUserInfo.answers[input.name] = input.value;
+            });
+
+            fs.writeFile(filePath, JSON.stringify(updatedUserInfo, null, 4), (err) => {
+                if (err) {
+                    console.error("Error saving user info:", err);
+                    alert("Failed to save changes.");
+                } else {
+                    alert("Profile updated successfully!");
+                }
+            });
+        });
+
+        loadProfile();
+    </script>
+</body>
+</html>

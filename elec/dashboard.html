@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+button {
+    background-color: white;
+    color: black;
+    border: 2px solid white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: black;
+    color: white;
+    border: 2px solid white;
+}
+button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Noa</div>
+        <div class="nav-right">
+            <button id="settingsBtn">⚙ Settings</button>
+            <button id="profileBtn">👤 Profile</button>
+        </div>
+    </nav>
+    <div class="content">
+        <h2>Welcome to the Dashboard</h2>
+        <p>More features coming soon...</p>
+    </div>
+    <button id="startBtn">▶ Start</button>
+    <button id="end-btn" style="display: none;">End</button>
+    <script>
+        const { ipcRenderer } = require("electron");
+    
+        document.getElementById("settingsBtn").addEventListener("click", () => {
+            ipcRenderer.send("navigate", "settings.html");
+        });
+    
+        document.getElementById("profileBtn").addEventListener("click", () => {
+            ipcRenderer.send("navigate", "profile.html");
+        });
+    
+        // document.getElementById("startBtn").addEventListener("click", () => {
+        //     ipcRenderer.send("run-python");
+        //     document.getElementById('startBtn').disabled = true; 
+        // });
+
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            ipcRenderer.send("run-python");
+            document.getElementById('startBtn').disabled = true; // Disable Start button
+            document.getElementById('end-btn').style.display = 'inline-block'; // Show End button
+});
+
+document.getElementById('end-btn').addEventListener('click', () => {
+    ipcRenderer.send('stop-python'); // Tell main process to stop Python script
+    
+    document.getElementById('startBtn').disabled = false; // Re-enable Start button
+    document.getElementById('end-btn').style.display = 'none'; // Hide End button
+});
+    </script>
+    
+</body>
+</html>

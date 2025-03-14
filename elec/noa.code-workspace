@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "noa",
+			"path": "."
+		},
+		{
+			"name": "espeak-ng-data",
+			"path": "../bot/espeak-ng-data"
+		}
+	],
+	"settings": {}
+}
